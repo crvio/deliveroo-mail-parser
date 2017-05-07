@@ -1,7 +1,0 @@
-Si quisiera en algún momento habilitar un servicio para el cálculo de estadísticas para los Roo's y eventualmente la preparación de facturas,
-sería conveniente repasar el procedimiento de exportación de correos desde gmail como alternativa al acceso via API, ya que los repartidores
-podrían celar sobre la información de sus correos (completamente comprensible). De esta manera podrían proveer toda la información necesaria
-sin comprometer su privacidad:
-https://www.google.com/settings/takeout/custom/gmail,calendar
-
-
