@@ -19,6 +19,12 @@ try:
 except ImportError:
     flags = None
 
+parser = argparse.ArgumentParser(description='Descarga la información de entregas enviada vía correo por deliveroo')
+parser.add_argument('-f','--jsonfile', help='El archivo json a escribir con la información de los correos. Default is "deliveries.json"', default='deliveries.json', required=False)
+parser.add_argument('-l','--label', help='La etiqueta usada para identificar los correos de deliveroo. Defaults to "entrega-deliveroo"', default='entrega-deliveroo', required=False)
+args = vars(parser.parse_args())
+
+
 # If modifying these scopes, delete your previously saved credentials
 # at ~/.credentials/gmail-python-quickstart.json
 SCOPES = 'https://www.googleapis.com/auth/gmail.readonly'
@@ -64,7 +70,10 @@ def main():
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('gmail', 'v1', http=http)
 
-    search_label = 'Label_15' # entrega-deliveroo
+    all_labels = service.users().labels().list(userId='me').execute()
+
+    search_label = next(x['id'] for x in all_labels['labels'] if x['name'] == args['label'])
+    #search_label = 'Label_15' # entrega-deliveroo
     citycode = {'Berlin':8}
 
     #results = service.users().labels().list(userId='me').execute()
@@ -92,8 +101,7 @@ def main():
       for hilo in hilos:
         #print(message['id'],message['threadId'])
         thread = service.users().threads().get(userId='me', id=hilo['id'], format='full').execute()
-        mail_strings.append(str(base64.decodebytes(thread['messages'][0]['payload']['body']['data'].encode())))
-        #mail_strings.append(base64.decodestring(thread['messages'][0]['payload']['body']['data'])) # this works in python 2.7
+        mail_strings.append(str(base64.urlsafe_b64decode(thread['messages'][0]['payload']['body']['data'].encode('UTF8'))))
         nres=nres+1
     print(nres)
 

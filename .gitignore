@@ -1,0 +1,6 @@
+# ignore client credentials
+client_secret.json
+# ignore fetched information of deliveries
+deliveries.json
+# ignore pyenv directory configuration
+.python-version
