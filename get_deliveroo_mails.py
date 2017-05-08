@@ -13,16 +13,11 @@ from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
 
-try:
-    import argparse
-    flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
-except ImportError:
-    flags = None
-
-parser = argparse.ArgumentParser(description='Descarga la información de entregas enviada vía correo por deliveroo')
+import argparse
+parser = argparse.ArgumentParser(parents=[tools.argparser], description='Descarga la información de entregas enviada vía correo por deliveroo')
 parser.add_argument('-f','--jsonfile', help='El archivo json a escribir con la información de los correos. Default is "deliveries.json"', default='deliveries.json', required=False)
 parser.add_argument('-l','--label', help='La etiqueta usada para identificar los correos de deliveroo. Defaults to "entrega-deliveroo"', default='entrega-deliveroo', required=False)
-args = vars(parser.parse_args())
+flags = vars(parser.parse_args())
 
 
 # If modifying these scopes, delete your previously saved credentials
@@ -72,7 +67,7 @@ def main():
 
     all_labels = service.users().labels().list(userId='me').execute()
 
-    search_label = next(x['id'] for x in all_labels['labels'] if x['name'] == args['label'])
+    search_label = next(x['id'] for x in all_labels['labels'] if x['name'] == flags['label'])
     #search_label = 'Label_15' # entrega-deliveroo
     citycode = {'Berlin':8}
 
@@ -105,7 +100,7 @@ def main():
         nres=nres+1
     print(nres)
 
-    f = open('deliveries.json', 'w')
+    f = open(flags['jsonfile'], 'w')
 
     transl = {'Geliefert um':'date', 'Lieferzeit':'deltime', 'Restaurant':'restaurant', 'Restaurantadresse':'r_address', 'Restaurant Telefon':'r_tel', 'Trinkgeld (Kreditkarte)':'tip_cc'}
     deliveries = []
