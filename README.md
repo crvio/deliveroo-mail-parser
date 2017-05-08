@@ -11,11 +11,7 @@ The `get_deliveroo_mails.py` script gets the email and saves the data in a json 
 The `analyze_deliveries.py` script analyzes the deliveries stored in the json file and displays useful information per date in a specified period of time.
 More detailed information is available with the verbose flag (-v).
 
-<<<<<<< HEAD
 In order for the scripts to work you need to have your deliveroo delivery mails labeled somehow. There's a file with the filter I use. If you have any other filter which successfully does so, it should also work, provided you give the label name with the `--label` option of `get_deliveroo_mails.py`.
-=======
-In order for the scripts to work you need to have your deliveroo delivery mails labeled somehow. There's a file with the filter I use. If you have any other filter which successfully does so, it should also work, provided you give the label name with the `--label option` of `get_deliveroo_mails.py`.
->>>>>>> 4e9cd39e03acd32c19cc16ea4ea54847fccd3e74
 
 For usage information run the scripts with the help flag (-h).
 
