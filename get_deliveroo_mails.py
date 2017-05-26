@@ -86,44 +86,49 @@ def main():
     #print(threads[0].keys())
     #print(type(threads[0]['id']))
     #print(type(threads[0]['threadId']))
+
+    if os.path.isfile(flags['jsonfile']):
+      f = open(flags['jsonfile'], 'r')
+      deliveries = json.load(f)
+      f.close()
+    else:
+      deliveries = []
+
     nres=0
-    mail_strings=[]
+    nres_new=0
+
+    transl = {'Geliefert um':'date', 'Lieferzeit':'deltime', 'Restaurant':'restaurant', 'Restaurantadresse':'r_address', 'Restaurant Telefon':'r_tel', 'Trinkgeld (Kreditkarte)':'tip_cc'}
 
     if not hilos:
         print('No threads found.')
     else:
       print('Messages:')
+      thread_ids = [delivery['thread_id'] for delivery in deliveries]
       for hilo in hilos:
         #print(message['id'],message['threadId'])
-        thread = service.users().threads().get(userId='me', id=hilo['id'], format='full').execute()
-        mail_strings.append(str(base64.urlsafe_b64decode(thread['messages'][0]['payload']['body']['data'].encode('UTF8'))))
+        if not hilo['id'] in thread_ids:
+          thread = service.users().threads().get(userId='me', id=hilo['id'], format='full').execute()
+          mail_string = str(base64.urlsafe_b64decode(thread['messages'][0]['payload']['body']['data'].encode('UTF8')))
+          ms_lines = mail_string.split('\\r\\n')
+          delivery_info = {}
+          delivery_info['thread_id'] = hilo['id']
+          for ms_line in ms_lines:
+              match_field = re.search('([^:]*): (.*)',ms_line)
+              match_nr = re.search('Bestellung #([0-9]+) geliefert',ms_line)
+              if match_field:
+                  delivery_info[transl[match_field.group(1)]]=match_field.group(2)
+              elif match_nr:
+                  delivery_info['daily_id']=match_nr.group(1)
+          delivery_info['deltime_s'] = minsec2sec(delivery_info['deltime'])
+          deldate=datetime.datetime.strptime(delivery_info['date'],'%Y-%m-%d %H:%M:%S')
+          delivery_info['id']= int(delivery_info['daily_id'])+10000*deldate.hour+1000000*deldate.day+100000000*deldate.month+10000000000*(deldate.year%100)+1000000000000*citycode['Berlin']
+          deliveries.append(delivery_info)
+          nres_new=nres_new+1
         nres=nres+1
     print(nres)
+    print("%d of them are new." % nres_new)
 
     f = open(flags['jsonfile'], 'w')
-
-    transl = {'Geliefert um':'date', 'Lieferzeit':'deltime', 'Restaurant':'restaurant', 'Restaurantadresse':'r_address', 'Restaurant Telefon':'r_tel', 'Trinkgeld (Kreditkarte)':'tip_cc'}
-    deliveries = []
-
-    for mail_string in mail_strings:
-        #f.write(mail_string)
-        ms_lines=mail_string.split('\\r\\n')
-        #ms_lines=string.split(mail_string,'\r\n') # this works in python 2.7
-        delivery_info = {}
-        for ms_line in ms_lines:
-            match_field = re.search('([^:]*): (.*)',ms_line)
-            match_nr = re.search('Bestellung #([0-9]+) geliefert',ms_line)
-            if match_field:
-                delivery_info[transl[match_field.group(1)]]=match_field.group(2)
-            elif match_nr:
-                delivery_info['daily_id']=match_nr.group(1)
-        deliveries.append(delivery_info)
-
-    for delivery in deliveries:
-        delivery['deltime_s']=minsec2sec(delivery['deltime'])
-        deldate=datetime.datetime.strptime(delivery['date'],'%Y-%m-%d %H:%M:%S')
-        delivery['id']= int(delivery['daily_id'])+10000*deldate.hour+1000000*deldate.day+100000000*deldate.month+10000000000*(deldate.year%100)+1000000000000*citycode['Berlin']
-
     json.dump(deliveries,f)
     f.close()
 
