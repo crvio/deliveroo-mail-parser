@@ -108,9 +108,9 @@ if args['verbose']:
         tipmoney=sum([float(delivery['tip_cc']) for delivery in desglose[date]])
         if ndel:
             meandtime=float(sum([delivery['deltime_s'] for delivery in desglose[date]]))/ndel
-            print("%s %d-%2d-%02d\t%4d\t%.2f\t%.2f\t%s\t%s" % (dsotw[dow],date[0],date[1],date[2],ndel,meandtime,tipmoney,fdelpd[date],ldelpd[date]))
+            print("%s %d-%02d-%02d\t%4d\t%.2f\t%.2f\t%s\t%s" % (dsotw[dow],date[0],date[1],date[2],ndel,meandtime,tipmoney,fdelpd[date],ldelpd[date]))
         else:
             #ndel='-'
-            print("%s %d-%2d-%02d\t  -\t-\t-\t-\t-" % (dsotw[dow],date[0],date[1],date[2]))
+            print("%s %d-%02d-%02d\t  -\t-\t-\t-\t-" % (dsotw[dow],date[0],date[1],date[2]))
     
     print("")
